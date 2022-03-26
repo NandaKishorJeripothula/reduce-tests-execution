@@ -1,0 +1,26 @@
+{
+  "name": "reduce-tests-execution",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NandaKishorJeripothula/reduce-tests-execution.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/NandaKishorJeripothula/reduce-tests-execution/issues"
+  },
+  "homepage": "https://github.com/NandaKishorJeripothula/reduce-tests-execution#readme",
+  "devDependencies": {
+    "jest": "^26.4.1"
+  },
+  "dependencies": {
+    "lodash": "^4.17.20"
+  }
+}
