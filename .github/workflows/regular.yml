@@ -1,0 +1,13 @@
+name: Regular
+on: [push]
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2 #for caching and speeding up
+      - run: npm install
+      - id: run-tests
+        name: Run Tests
+        run: npm jest
+\
