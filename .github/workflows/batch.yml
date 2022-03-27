@@ -4,31 +4,26 @@ jobs:
   setup:
     runs-on: ubuntu-latest
     outputs:
-      test-chunks: ${{ steps['set-test-chunks'].outputs['test-chunks'] }}
-      test-chunk-ids: ${{ steps['set-test-chunk-ids'].outputs['test-chunk-ids'] }}
+      test-sets: ${{ steps['define-test-sets'].outputs['test-sets'] }}
     steps:
       - uses: actions/checkout@v2
       - run: npm install
       - id: define-test-sets
         name: Define Test Sets
-        run: echo "::set-output name=test-sets::$(cat ./prepareTestSets.json)" \
-      # - id: set-test-chunk-ids
-      #   name: Set Chunk IDs
-      #   run: echo "::set-output name=test-chunk-ids::$(echo $CHUNKS | jq -cM 'to_entries | map(.key)')"
-      #   env:
-      #     CHUNKS: ${{ steps['set-test-chunks'].outputs['test-chunks'] }}
-  test:
-    runs-on: ubuntu-latest
-    name: Test Batch (${{ fromJSON(matrix.chunk)['name'] }})
-    needs:
-      - setup
-    strategy:
-      matrix:
-        chunk: ${{ fromJson(needs.setup.outputs['test-sets']) }}
-    steps:
-      - uses: actions/checkout@v2
-      - run: npm install
-      - name: jest
-        run: echo ${{ matrix.chunk }} | jq '.tests | .[] | @text' | xargs npx jest
-        env:
-          CHUNKS: ${{ needs.setup.outputs['test-sets'] }}
+        run: node ./createTestSets.js
+      - id: read-test-sets
+        name: Read Test Sets
+        run: echo "::set-output name=test-sets::$(cat ./prepareTestSets.json)"
+test:
+  runs-on: ubuntu-latest
+  name: Test Batch (${{ fromJSON(matrix.chunk)['name'] }})
+  needs:
+    - setup
+  strategy:
+    matrix:
+      chunk: ${{ fromJson(needs.setup.outputs['test-sets']) }}
+  steps:
+    - uses: actions/checkout@v2
+    - run: npm install
+    - name: jest
+      run: echo ${{ matrix.chunk }} | jq '.tests | .[] | @text' | xargs npx jest
