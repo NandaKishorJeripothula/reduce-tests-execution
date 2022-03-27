@@ -8,6 +8,7 @@ jobs:
       batchIds: ${{ steps.store-batches-as-vars.outputs.batchIds }}
     steps:
       - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2 #for caching and speeding up
       - run: npm install
       - id: define-batches
         name: Define Test Batches
@@ -19,14 +20,9 @@ jobs:
           echo "::set-output name=batches::$(cat prepareTestSets.txt)"
           # read the tests array, convert to entries and pull keys as batch ids
           echo "::set-output name=batchIds::$(cat prepareTestSets.txt | jq -cM 'to_entries | map(.key)')"
-  # job2:
-  #   runs-on: ubuntu-latest
-  #   needs: setup
-  #   steps:
-  #     - run: echo ${{ toJson(needs.setup.outputs) }}
   test:
     runs-on: ubuntu-latest
-    name: Test Batch (${{ fromJson(matrix.value) }})
+    name: Set (${{ matrix.value }})
     needs:
       - setup
     strategy:
@@ -34,8 +30,9 @@ jobs:
         value: ${{ fromJson(needs.setup.outputs.batchIds) }}
     steps:
       - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2 #for caching and speeding up
       - run: npm install
       - name: jest
-        run: echo $BATCHES | jq '.[${{ matrix.value }}] | .tests | @text ' | xargs npx jest
+        run: echo $BATCHES | jq '.[${{ matrix.value }}] | .[] | @text ' | npx jest
         env:
           BATCHES: ${{ needs.setup.outputs.batches }}

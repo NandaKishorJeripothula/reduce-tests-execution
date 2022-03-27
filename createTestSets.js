@@ -28,7 +28,7 @@ async function prepareTestSets(jsonFilePath) {
   const contents = await readFile(jsonFilePath);
   const sets = JSON.parse(contents);
   let tracedPaths = " ";
-  const preparedSets = [];
+  const preparedSets = {};
   // Defined Paths
   for (const set of sets) {
     const { name, basePath, modules } = set;
@@ -46,12 +46,10 @@ async function prepareTestSets(jsonFilePath) {
         );
 
         if (moduleTests.length) {
-          preparedSets.push({
-            name: `${name} / ${module} (${moduleTests.length})`,
-            tests: moduleTests,
-          });
+          preparedSets[`${name}:${module} (${moduleTests.length})`] =
+            moduleTests;
         } else {
-          console.warn(`${name} / ${module} doesn't have tests`);
+          console.warn(`${name}:${module} doesn't have tests`);
         }
       }
     }
@@ -64,14 +62,12 @@ async function prepareTestSets(jsonFilePath) {
     )) || []
   );
   if (otherTests.length) {
-    preparedSets.push({
-      name: `Misc (${otherTests.length})`,
-      tests: otherTests,
-    });
+    preparedSets[`Misc(${otherTests.length})`] = otherTests;
   }
 
   return preparedSets;
 }
 prepareTestSets("sets.json").then((data) => {
+  console.log(JSON.stringify(data));
   fileStream.writeFile("prepareTestSets.txt", JSON.stringify(data), () => {});
 });
