@@ -14,6 +14,7 @@ jobs:
       - id: read-test-sets
         name: Read Test Sets
         run: echo "::set-output name=test-sets::$(cat ./prepareTestSets.json)"
+        #
   test:
     runs-on: ubuntu-latest
     name: Test Batch (${{ fromJSON(matrix.chunk)['name'] }})
