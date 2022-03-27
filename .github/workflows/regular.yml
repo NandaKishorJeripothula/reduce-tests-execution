@@ -9,4 +9,4 @@ jobs:
       - run: npm install
       - id: run-tests
         name: Run Tests
-        run: npm jest
+        run: npx jest
