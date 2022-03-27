@@ -4,27 +4,38 @@ jobs:
   setup:
     runs-on: ubuntu-latest
     outputs:
-      test-sets: ${{ steps['define-test-sets'].outputs['test-sets'] }}
+      batches: ${{ steps.store-batches-as-vars.outputs.batches }}
+      batchIds: ${{ steps.store-batches-as-vars.outputs.batchIds }}
     steps:
       - uses: actions/checkout@v2
       - run: npm install
-      - id: define-test-sets
-        name: Define Test Sets
+      - id: define-batches
+        name: Define Test Batches
         run: node ./createTestSets.js
-      - id: read-test-sets
-        name: Read Test Sets
-        run: echo "::set-output name=test-sets::$(cat ./prepareTestSets.json)"
-        #
+      - id: store-batches-as-vars
+        name: Store Batches into Variables
+        run: |
+          cat prepareTestSets.txt | jq -cM 'to_entries | map(.key)'
+          echo "::set-output name=batches::$(cat prepareTestSets.txt)"
+          # read the tests array, convert to entries and pull keys as batch ids
+          echo "::set-output name=batchIds::$(cat prepareTestSets.txt | jq -cM 'to_entries | map(.key)')"
+  # job2:
+  #   runs-on: ubuntu-latest
+  #   needs: setup
+  #   steps:
+  #     - run: echo ${{ toJson(needs.setup.outputs) }}
   test:
     runs-on: ubuntu-latest
-    name: Test Batch (${{ fromJSON(matrix.chunk)['name'] }})
+    name: Test Batch (${{ fromJson(matrix.value) }})
     needs:
       - setup
     strategy:
       matrix:
-        chunk: ${{ fromJson(needs.setup.outputs['test-sets']) }}
+        value: ${{ fromJson(needs.setup.outputs.batchIds) }}
     steps:
       - uses: actions/checkout@v2
       - run: npm install
       - name: jest
-        run: echo ${{ matrix.chunk }} | jq '.tests | .[] | @text' | xargs npx jest
+        run: echo $BATCHES | jq '.[${{ matrix.value }}] | .tests | @text ' | xargs npx jest
+        env:
+          BATCHES: ${{ needs.setup.outputs.batches }}

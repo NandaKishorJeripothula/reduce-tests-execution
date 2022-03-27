@@ -73,5 +73,5 @@ async function prepareTestSets(jsonFilePath) {
   return preparedSets;
 }
 prepareTestSets("sets.json").then((data) => {
-  fileStream.writeFile("prepareTestSets.json", JSON.stringify(data), () => {});
+  fileStream.writeFile("prepareTestSets.txt", JSON.stringify(data), () => {});
 });
