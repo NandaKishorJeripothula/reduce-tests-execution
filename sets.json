@@ -1,0 +1,12 @@
+[
+  {
+    "name": "UTs",
+    "basePath": "section-a",
+    "modules": ["base-maths", "medium-maths"]
+  },
+  {
+    "name": "FTs",
+    "basePath": "section-b",
+    "modules": ["string"]
+  }
+]
